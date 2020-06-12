@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>投稿</title>
+    <link rel="stylesheet" href="css/my.css"/>
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <script src="js/my.js"></script>
+  <style>
+      #menu li{
+          border: 1px solid;
+          width: 100%;
+          list-style: none;
+          text-align: center;
+          font-size: 30px;
+
+      }
+      #menu a:hover{
+          background-color: #3a8ee6;
+
+      }
+      #menu a{
+          display: inline-block;
+          height: 50px;
+          width: 100%;
+          background-color: rgba(1,1,1,0.2);
+          margin:auto;
+          padding: 2px 2px 1px 2px;
+          text-decoration: none;
+      }
+  </style>
+</head>
+<body>
+<div>
+<div class="top">
+    <div id="header-m" class="header-m">
+        <div class="nav-menu">
+
+            <div class="blur-bg"
+                 style="background-image: url(img/bg2.png);">
+            </div>
+            <div class="nav-mask">
+                <div class="menu-bar" style="overflow:hidden">
+                    <a class="menu-item left" href="/MyWebSite/index.do">主站</a>
+                    <a class="menu-item right" href="">信件</a>
+                    <div id="location_login" class=" right" ></div>
+                </div>
+            </div>
+        </div>
+        <div id="banner_link" class="head-banner report-wrap-module report-scroll-module"
+             style="background-image: url(img/bg2.png);">
+        </div>
+
+    </div>
+</div>
+<div class="container" style="height: 800px">
+        <div   class="layui-upload-drag " style=" background-color:#e2e2e2;;margin-top: 130px;margin-left: 100px;width: 200px;float: left" id="test">
+            <i class="layui-icon"></i>
+            <p>点击上传视频</p>
+            <div class="layui-hide" id="uploadDemoView">
+                <hr>
+                <img src="" alt="上传成功后渲染" style="max-width: 196px">
+            </div>
+            <br>
+            <br>
+            <br>
+            <div style="color: #01AAED;font-size: 20px">
+                上传要求<br>
+                只能是常见视频格式<br>
+                文件大小不超过10M
+            </div>
+            <div lay-filter="percent"  class="layui-progress layui-progress-big" lay-showPercent="yes">
+                <div  class="layui-progress-bar layui-bg-green" lay-percent="0%"></div>
+            </div>
+        </div>
+        <div class="layui-upload" style="margin-top: 130px;margin-left: 100px;width: 200px;float: left">
+            <div class="layui-upload-list" >
+                <img class="layui-upload-img" id="demo1" style="width: 150px;height: 150px;">
+                <p id="demoText"></p>
+            </div>
+            <button type="button" class="layui-btn" id="test1">上传封面</button>
+        </div>
+
+
+
+
+
+    <div style="float: left;">
+        <form class="layui-form" style=" margin-top: 130px;margin-left: 100px;width: 600px;" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">视频上传</label>
+
+                <div class="layui-input-block">
+                    <i id="video" myvalue="0" class="layui-icon layui-icon-close-fill" style="font-size: 30px; color: #1E9FFF;"></i>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">封面上传</label>
+                <div class="layui-input-block">
+                    <i id="image" myvalue="0" class="layui-icon layui-icon-close-fill" style="font-size: 30px; color: #1E9FFF;"></i>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">请输入标题</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" required  lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">简介</label>
+                <div class="layui-input-block">
+                    <textarea name="desc" placeholder="请输入简介" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <br>
+            <br>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="Button1">立即投稿</button>
+                    <button id="reset" type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
+</div>
+</body>
+<script src="layui/layui.js" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'layedit', 'laydate','upload','element'], function() {
+        var $ = layui.jquery
+            , upload = layui.upload
+            ,element=layui.element
+            ,form=layui.form;
+
+        form.on('submit(Button1)', function(data){
+            $.post("uploadinfo.do",data.field,function (res) {
+                layer.msg(res.msg)
+
+                $("#reset").click();
+            })
+
+            return false
+        });
+
+
+
+
+        upload.render({
+            elem: '#test'
+            ,url: '/MyWebSite/uploadvideo.do'
+            ,multiple: true
+            ,accept: 'file'
+            ,done: function(res){
+                if(res.code > 0){
+                    return layer.msg('上传失败');
+                }
+                $("#video").removeClass('layui-icon-close-fill')
+                $("#video").addClass('layui-icon-ok-circle')
+                $("#video").attr("myvalue","1")
+
+
+                console.log(res)
+
+            }
+            ,progress: function(n, elem){
+                var percent = n + '%' //获取进度百分比
+                element.progress('percent', percent); //可配合 layui 进度条元素使用
+                console.log(percent); //得到当前触发的元素 DOM 对象。可通过该元素定义的属性值匹配到对应的进度条。
+            }
+        });
+        var uploadInst = upload.render({
+            elem: '#test1'
+            ,url: '/MyWebSite/uploadimage.do'
+            ,before: function(obj){
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    $('#demo1').attr('src', result); //图片链接（base64）
+                });
+            }
+            ,done: function(res){
+                //如果上传失败
+                if(res.code > 0){
+                    return layer.msg('上传失败');
+                }
+                //上传成功
+                $("#image").removeClass('layui-icon-close-fill')
+                $("#image").addClass('layui-icon-ok-circle')
+                $("#image").attr("myvalue","1")
+            }
+            ,error: function(){
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function(){
+                    uploadInst.upload();
+                });
+            }
+        });
+
+    })
+
+</script>
+</html>

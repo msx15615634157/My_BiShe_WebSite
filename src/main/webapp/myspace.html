@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${session.account.getNickname()}+'的个人空间'" ></title>
+    <link rel="stylesheet" href="css/my.css"/>
+    <link rel="stylesheet" href="layui/css/layui.css"/>
+
+    <script src="js/my.js"></script>
+
+</head>
+<body>
+
+<div class="layui-container" style="background-image: url(img/bg1.png);background-repeat: no-repeat;width: 1600px;height: 290px">
+<div class="layui-row" >
+    <div class="layui-col-xs8 layui-col-md8">
+        <a style="margin-left: 300px" class="menu-item left" href="/MyWebSite/index.do">主站</a>
+    </div>
+    <div class="layui-col-xs4 layui-col-md4">
+        <div id="login" class="left">
+            <a  style="" class="menu-item "th:href="${session.account}?'myspace.do':'tologin.do?location=myspace'">
+                <img id="banner_image" style="width: 42px;height:42px; border-radius: 50%;display: inline-block"  th:src="${session.account}?'resources/img/'+${session.account.getAccountimg()}:'resources/img/def.jpg'"/>
+                <div id="n1" style="display: inline-block" th:text="${session.account}?${session.account.getNickname()}:'未登录'"></div>
+            </a>
+            <br/>
+            <div id="outlog"  class="menu-item left" style="color: red; height:40px;position: fixed;margin-top: 0px;display: none;z-index: 1999"><a th:href="${session.account}?'javascript:loginout();':'tologin.do?location=myspace'" th:text="${session.account}?'退出登录':'登录账户'">退出登录</a></div>
+        </div>
+        <a class="menu-item left" href="tougao.do">投稿</a>
+    </div>
+    <div class="layui-col-xs12 layui-col-md12" style="height: 240px;">
+        <div style="height: 70px;position:absolute;left: 0;top: 0;font-size: 32px" th:text="'用户ID'+${session.account.getAccountid()}">
+        </div>
+       <div style="height: 70px;position:absolute;left: 0;bottom: 0;">
+           <img id="touxiang" class="left" style="height: 64px;width:64px;border-radius: 50%;display: inline-block" th:src="'resources/img/'+${session.account.getAccountimg()}">
+           <div class="left" style="display: inline-block;height: 64px">
+               <div id="n2" style="height: 32px" th:text="${session.account.getNickname()}"></div>
+               <div id="d2" style="height: 32px" th:text="${session.account.getDesc()}"></div>
+           </div>
+
+       </div>
+    </div>
+</div>
+</div>
+<div class="layui-container " style="width: 1600px;height: 500px;background-color:#cccccc;">
+    <div class="layui-tab layui-col-xs12 layui-col-md12" >
+        <ul class="layui-tab-title">
+            <li class="layui-this">我的投稿</li>
+            <li>我的收藏</li>
+            <li>我的关注</li>
+            <li>资料修改</li>
+        </ul>
+        <div class="layui-tab-content">
+            <!--我的投稿-->
+            <div class="layui-tab-item layui-show" >
+                <table class="layui-table" lay-data="{height:315, url:'/MyWebSite/my_upload_videos.do', page:true}" lay-filter="uploadvideo">
+                    <thead>
+                    <tr>
+                        <th lay-data="{field:'videoid', cellMinWidth:200, sort: true}">视频ID</th>
+                        <th lay-data="{field:'videotitle', cellMinWidth:300}">标题</th>
+                        <th lay-data="{field:'videodate', cellMinWidth:300, sort: true}">日期</th>
+                        <th lay-data="{cellMinWidth:300,templet:'#videopage'}">前往播放页面</th>
+                        <th lay-data="{ toolbar:'#deleteButton', cellMinWidth:150}">操作</th>
+                    </tr>
+                    </thead>
+                </table>
+
+
+
+
+
+            </div>
+            <!--我的收藏-->
+            <div class="layui-tab-item">
+                <table class="layui-table" lay-data="{height:315, url:'/MyWebSite/my_shoucang_videos.do', page:true}" lay-filter="shoucangvideo">
+                    <thead>
+                    <tr>
+                        <th lay-data="{field:'videoid', cellMinWidth:300, sort: true}">视频ID</th>
+                        <th lay-data="{field:'videotitle', cellMinWidth:300}">标题</th>
+                        <th lay-data="{field:'nickname', cellMinWidth:300, sort: true}">视频投稿人</th>
+                        <th lay-data="{cellMinWidth:300,templet:'#videopage'}">前往播放页面</th>
+                        <th lay-data="{ toolbar:'#quxiaoshoucangButton', cellMinWidth:150}">操作</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+            <!--我的关注-->
+            <div class="layui-tab-item">
+                <table class="layui-table" lay-data="{height:315, url:'my_guanzhu_accounts.do', page:true}" lay-filter="guanzhuAccount">
+                    <thead>
+                    <tr>
+                        <th lay-data="{field:'accountid', cellMinWidth:300, sort: true}">用户ID</th>
+                        <th lay-data="{field:'nickname', cellMinWidth:300}">昵称</th>
+                        <th lay-data="{cellMinWidth:300,templet:'#hisspace'}">Ta的主页</th>
+                        <th lay-data="{cellMinWidth:300,templet:'#chat_to'}">联系Ta</th>
+                        <th lay-data="{toolbar:'#quxiaoguanzhuButton',cellMinWidth:300}">取消Ta的关注</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+            <!--个人资料-->
+            <div class="layui-tab-item">
+                <div style="display: inline-block ;width: 49%;height:400px;float: left" >
+                    <form class="layui-form" style="margin-top: 10%" >
+                    <div class="layui-form-item">
+                    <label class="layui-form-label ">昵称</label>
+                    <div class="layui-input-inline">
+                    <input style="width: 400px" type="text" name="nickname" required  lay-verify="required" placeholder="请输入昵称" autocomplete="off" class="layui-input" th:value="${session.account.getNickname()}">
+                    </div>
+                    </div>
+                    <div class="layui-form-item">
+                    <label class="layui-form-label ">个人签名</label>
+                    <div class="layui-input-inline">
+                        <textarea style="width: 400px" type="text" name="desc" required   placeholder="请输入签名" autocomplete="off" class="layui-textarea" th:text="${session.account.getDesc()}"></textarea>
+                    </div>
+                    </div>
+                        <div class="layui-inline" style="margin-left: 30%">
+                            <button lay-submit lay-filter="modifyinfo" class="layui-btn" type="submit">立即更改</button>
+                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        </div>
+                    </form>
+                </div>
+                <div style="display: inline-block ;width: 49%;height:400px;float: left" >
+                    <form class="layui-form" style="margin-top: 10%" id="formpwd">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label ">旧密码</label>
+                            <div class="layui-input-inline">
+                                <input style="width: 400px" type="password" name="oldpwd" required  lay-verify="required" placeholder="请输入旧密码" autocomplete="off" class="layui-input" >
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label ">新密码</label>
+                            <div class="layui-input-inline">
+                                <input style="width: 400px" type="password" name="newpwd1" required  lay-verify="required" placeholder="请输入新密码" autocomplete="off" class="layui-input" >
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label ">确认密码</label>
+                            <div class="layui-input-inline">
+                                <input style="width: 400px" type="password" name="newpwd2" required  lay-verify="required" placeholder="请确认密码" autocomplete="off" class="layui-input" >
+                            </div>
+                        </div>
+                        <div class="layui-inline" style="margin-left: 30%">
+                            <button lay-submit class="layui-btn" lay-filter="modifypwd" type="submit">立即更改</button>
+                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        </div>
+                    </form>
+                </div>
+
+
+
+
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+<script src="layui/layui.all.js"></script>
+<script>
+    var $=layui.jquery
+    var element = layui.element;
+    var table = layui.table;
+    var upload = layui.upload;
+    var form = layui.form;
+</script>
+<script>
+
+    $("#login").mouseenter(function () {
+        $("#outlog").stop().slideDown(1000)
+    })
+    $("#login").mouseleave(function () {
+        $("#outlog").stop().slideUp(500)
+    })
+
+</script>
+<script>
+    $("#touxiang").mouseenter(function () {
+        $(this).css("cursor","pointer");
+        $(this).stop().animate({height:"70px",width:"70px"},100);
+    })
+    $("#touxiang").mouseleave(function () {
+        $(this).stop().animate({height:"64px",width:"64px"},100);
+    })
+    upload.render({
+        elem: '#touxiang'
+        ,url: 'updatetouxiang.do'
+        ,done: function(res, index, upload){ //上传后的回调
+            if (res.code == 0) {
+                $("#touxiang").attr("src","resources/img/"+res.imagename)
+                $("#banner_image").attr("src","resources/img/"+res.imagename)
+            }
+        }
+        ,accept: 'images'
+        ,size: '10240'
+    })
+</script>
+<script>
+    table.render({
+        elem: '#uploadvideo' //指定原始表格元素选择器（推荐id选择器）
+        ,height: 315 //容器高度
+    });
+
+    table.on('tool(uploadvideo)', function(obj){
+        switch(obj.event){
+            case 'del':
+                layer.msg('确认继续操作', {
+                    btn: ['确认', '取消']
+                    ,yes: function(layero){
+                        $.ajax({
+                            url: "delete_my_upload_video.do?videoid="+obj.data.videoid,
+                            success: function(data){
+                                if (data.code == 0) {
+                                    layer.msg(data.msg);
+                                    obj.del()
+                                }else {
+                                    layer.msg(data.msg);
+                                }
+
+                            },
+                            error:function(){
+                                layer.msg("错误了");
+                            }
+
+                        });
+                    }
+                    ,btn2:function(layero){
+
+                    }
+    })
+                break
+
+
+}
+    });
+    table.on('tool(shoucangvideo)', function(obj){
+        switch(obj.event){
+            case 'quxiaoshoucang':
+                layer.msg('确认继续操作', {
+                    btn: ['确认', '取消']
+                    ,yes: function(layero){
+                        $.ajax({
+                            url: "quxiao_shoucang.do?videoid="+obj.data.videoid,
+                            success: function(data){
+                                if (data.code == 0) {
+                                    layer.msg('取消成功');
+                                    obj.del()
+                                }else {
+                                    layer.msg(data.msg);
+                                }
+
+                            },
+                            error:function(){
+                                layer.msg("出现错误了");
+                            }
+
+                        });
+                    }
+                    ,btn2:function(layero){
+
+                    }
+                })
+                break
+}
+    });
+    table.on('tool(guanzhuAccount)', function(obj){
+        switch(obj.event){
+            case 'quxiaoguanzhu':
+                layer.msg('确认继续操作', {
+                    btn: ['确认', '取消']
+                    ,yes: function(layero){
+                        $.ajax({
+                            url: "quxiao_guanzhu.do?be_accountid="+obj.data.accountid,
+                            success: function(data){
+                                if (data.code == 0) {
+                                    layer.msg('取消成功');
+                                    obj.del()
+                                }else {
+                                    layer.msg(data.msg);
+                                }
+
+                            },
+                            error:function(){
+                                layer.msg("出现错误了");
+                            }
+
+                        });
+                    }
+                    ,btn2:function(layero){
+
+                    }
+                })
+                break
+}
+    });
+</script>
+<script>
+    form.on('submit(modifyinfo)', function(data){
+        console.log(data.field)
+        $.post("modifyaccount.do",data.field,function (res) {
+            layer.msg(res.msg)
+            $("#n1").text(data.field.nickname)
+            $("#n2").text(data.field.nickname)
+            $("#d2").text(data.field.desc)
+        })
+
+        return false
+    });
+    form.on('submit(modifypwd)', function(data){
+
+        console.log(data.field)
+
+        if (data.field.newpwd1 != data.field.newpwd2) {
+            layer.msg("两次密码不一致")
+            return
+        }
+        $.post("modifypwd.do",data.field,function (res) {
+            layer.msg(res.msg)
+            if (res.code == 0) {
+                $("#formpwd")[0].reset();
+            }
+
+
+        });
+
+return false
+    });
+</script>
+<script type="text/html" id="deleteButton">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script type="text/html" id="quxiaoshoucangButton">
+    <a class="layui-btn layui-btn-danger layui-btn-sm"  lay-event="quxiaoshoucang">取消收藏</a>
+</script>
+<script type="text/html" id="quxiaoguanzhuButton">
+    <a class="layui-btn layui-btn-danger layui-btn-sm"  lay-event="quxiaoguanzhu">取消关注</a>
+</script>
+<script type="text/html" id="hisspace">
+    <a target="_blank" href="hisspace.do?accountid={{d.accountid}}" class="layui-table-link">前往Ta的主页</a>
+</script>
+<script type="text/html" id="videopage">
+    <a target="_blank" href="video.do?videoid={{d.videoid}}" class="layui-table-link">前往播放页面</a>
+</script>
+<script type="text/html" id="chat_to">
+    <a target="_blank" href="chat_to.do?target={{d.accountid}}" class="layui-table-link">私信Ta</a>
+</script>
+</html>

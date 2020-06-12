@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="orz.doublexi.mapper.VideoMapper">
+    <select id="queryVideo" resultType="orz.doublexi.pojo.Video">
+SELECT * FROM video,account WHERE video.`videoowner`=account.`accountid` ORDER BY video.`videodate` DESC LIMIT #{from},#{num}
+   </select>
+    <select id="queryVideoByKey" resultType="orz.doublexi.pojo.Video">
+SELECT * FROM video,account WHERE video.`videoowner`=account.`accountid` and video.videotitle like concat('%',#{key},'%') ORDER BY video.`videodate` DESC LIMIT #{from},#{num}
+   </select>
+    <select id="queryVideoById" resultType="orz.doublexi.pojo.Video">
+SELECT * FROM video,account WHERE video.`videoowner`=account.`accountid` and video.videoid=#{videoid}
+   </select>
+    <delete id="deleteVideoById" >
+delete from video where videoid=#{videoid};
+delete from comment where commentvideoid=#{videoid};
+delete from dianzan where videoid=#{videoid};
+delete from shoucang where videoid=#{videoid};
+    </delete>
+    <select id="queryVideosByAccountid" resultType="orz.doublexi.pojo.Video">
+SELECT video.*,account.nickname  FROM video ,account WHERE video.videoowner=#{accountid} AND account.accountid=#{accountid}
+   </select>
+    <select id="queryShoucangVideos" resultType="orz.doublexi.pojo.Video">
+SELECT * FROM account,video,shoucang WHERE shoucang.accountid=#{accountid} AND shoucang.videoid=video.`videoid` AND video.`videoowner`=account.`accountid`
+   </select>
+    <select id="queryGuanzhuAccounts" resultType="orz.doublexi.pojo.Account">
+        select account.* from account,guanzhu where guanzhu.`accountid`=#{accountid} and guanzhu.`be_accountid`=account.`accountid`
+   </select>
+
+
+    <!--点赞-->
+    <insert id="dianzan">
+         INSERT INTO dianzan  SELECT NULL, #{videoid},#{accountid}
+ FROM DUAL WHERE
+        NOT EXISTS(
+        SELECT * FROM dianzan WHERE videoid=#{videoid} AND accountid=#{accountid}
+        )
+    </insert>
+    <select  id="isdianzan" resultType="int">
+        SELECT count(*) FROM dianzan WHERE videoid=#{videoid} AND accountid=#{accountid}
+    </select>
+    <delete id="quxiaoDianzan" >
+        delete  from dianzan WHERE videoid=#{videoid} AND accountid=#{accountid}
+    </delete>
+
+
+
+    <!--收藏-->
+    <insert id="shoucang">
+         INSERT INTO shoucang  SELECT NULL, #{videoid},#{accountid}
+ FROM DUAL WHERE
+        NOT EXISTS(
+        SELECT * FROM shoucang WHERE videoid=#{videoid} AND accountid=#{accountid}
+        )
+    </insert>
+    <select id="isshoucang" resultType="int">
+         SELECT count(*) FROM shoucang WHERE videoid=#{videoid} AND accountid=#{accountid}
+    </select>
+    <delete id="quxiaoShoucang">
+        delete  from shoucang WHERE videoid=#{videoid} AND accountid=#{accountid}
+    </delete>
+
+
+    <!--关注-->
+    <insert id="guanzhu">
+         INSERT INTO guanzhu  SELECT NULL, #{accountid},#{be_accountid}
+ FROM DUAL WHERE
+        NOT EXISTS(
+        SELECT * FROM guanzhu WHERE accountid=#{accountid} AND be_accountid=#{be_accountid}
+        )
+    </insert>
+    <select id="isguanzhu" resultType="int">
+        SELECT count(*) FROM guanzhu WHERE accountid=#{accountid} AND be_accountid=#{be_accountid}
+    </select>
+    <delete id="quxiaoGuanzhu">
+        delete  from guanzhu where accountid=#{accountid} AND be_accountid=#{be_accountid}
+    </delete>
+
+    <!--评论-->
+    <insert id="insertComment">
+        INSERT INTO comment VALUES(NULL,NOW(),#{commentcontent},#{commentowner},#{commentvideoid},#{commentownerid})
+    </insert>
+    <select id="queryComment" resultType="orz.doublexi.pojo.Comment">
+        select * from comment where commentvideoid=#{commentvideoid} and commentid > #{lastcommentid} limit 30
+
+    </select>
+</mapper>

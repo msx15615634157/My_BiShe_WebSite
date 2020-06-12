@@ -1,0 +1,148 @@
+html {
+    background: #fff;
+    color: #000;
+}
+* {
+    margin: 0;
+    padding: 0;
+}
+.top,.banner,.container,.foot{
+    width: 1600px;
+    background-color: #eee;
+    border: 1px dashed #ccc;
+}
+.top{
+    height: 275px;
+    margin: 0 auto 1px;
+}
+.top-out{
+    height: 275px;
+    background-color: #eee;
+    border: 1px dashed #ccc;
+    margin: 0 auto 1px;
+}
+.banner{
+    height: 42px;
+    margin: 0 auto 1px;
+}
+.container{
+    margin: 0 auto 1px;
+}
+.container-out{
+    height: 800px;
+    background-color: #eee;
+    border: 1px dashed #ccc;
+    margin: 0 auto 1px;
+}
+.foot{
+    height: 100px;
+    margin: 0 auto;
+}
+.header-m {
+    position: relative;
+    z-index: 10000;
+    background: #fff;
+    margin: 0;
+    padding: 0;
+}
+.nav-menu{
+    position: relative;
+    z-index: 200;
+    height: 42px;
+    color:#222;
+
+}
+.blur-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-position: center -10px;
+    background-repeat: no-repeat;
+    filter: blur(3px);
+}
+.nav-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: hsla(0,0%,100%,.4);
+    box-shadow: 0 1px 2px rgba(0,0,0,.1);
+}
+.menu-bar{
+    height: 100%;
+    padding:0 20%;
+
+}
+.menu-item{
+    color: #222;
+    line-height: 42px;
+    display: inline-block;
+    margin: 0 6px;
+    padding: 0 10px;
+    border-width: 1px;
+    text-decoration: none;
+    background-color: hsla(0,0%,100%,0);
+
+}
+.menu-item:hover{
+    background-color: hsla(0,0%,100%,.3);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+.item{
+    color: #222;
+    display: inline-block;
+    line-height: 42px;
+    padding: 0 10px;
+    border-width: 1px;
+    text-decoration: none;
+    background-color: hsla(0,0%,100%,0);
+}
+.left{
+    float: left;
+}
+.right{
+    float:right;
+}
+.head-banner {
+    position: relative;
+    z-index: 199;
+    height: 275px;
+    margin-top: -42px;
+    background-position: center -10px;
+    background-repeat: no-repeat;
+}
+.full{
+    width: 100%;
+    height: 100%;
+}
+
+
+.list-container {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.list-item {
+    width: 100%;
+    height: 60px;
+    line-height: 60px;
+    font-size: 23px;
+    margin: 3px 0;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+}
+.list-item:hover {
+    background-color: #fab6b6;
+}
+.list-item-active {
+    background-color: #fab6b6;
+}
+.huanhang{
+    white-space:normal;
+    word-break:break-all;
+    word-wrap:break-word;
+}

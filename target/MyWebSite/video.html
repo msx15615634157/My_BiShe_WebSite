@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="layui/layui.all.js"></script>
+    <script src="js/my.js"></script>
+    <link rel="stylesheet" href="css/my.css"/>
+    <link rel="stylesheet" href="layui/css/layui.css"/>
+    <style>
+       td{
+           min-width:100px
+
+        }
+    </style>
+</head>
+<body>
+<div class="banner">
+    <div style="height: 100%;margin: 0 10%">
+        <div style="width: 59%;display: inline-block;float: left">
+            <a class="menu-item left" href="/MyWebSite/index.do">主站</a>
+        </div>
+        <div  style="width: 39%;display: inline-block;float: left">
+            <div id="login" class="left">
+                <a  style="" class="menu-item "th:href="${session.account}?'myspace.do':'tologin.do?location=video_'+${video.getVideoid()}">
+                    <img  style="width: 42px;height: 42px; border-radius: 50%;display: inline-block"  th:src="${session.account}?'resources/img/'+${session.account.getAccountimg()}:'resources/img/def.jpg'"/>
+                    <div style="display: inline-block" th:text="${session.account}?${session.account.getNickname()}:'未登录'"></div>
+                </a>
+                <br/>
+                <div id="outlog"  class="menu-item left" style="color: red; height:40px;position: fixed;margin-top: 0px;display: none"><a th:href="${session.account}?'javascript:loginout();':'tologin.do?location=video_'+${video.getVideoid()}" th:text="${session.account}?'退出登录':'登录账户'">退出登录</a></div>
+            </div>
+            <a class="menu-item left" href="tougao.do">投稿</a>
+            <a class="menu-item left" href="chat.do">站内短信</a>
+        </div>
+    </div>
+</div>
+<br>
+<div class="container" style="height: 900px">
+    <div style="margin: 0 80px 0 120px;height: 700px">
+
+        <div style=";display: inline-block;float: left">
+        <p th:text="${video.getVideotitle()}" style="font-size: 45px"></p>
+            <video style="height: 500px;width: 900px;" th:poster="'image/'+${video.getVideopicture()}" controls th:src="'video/'+${video.getVideolocation()}"></video>
+            <div style="height: 60px">
+                <div style="float: right">
+                    <a  href="javascript:dianzan();">
+                        <i id="dianzan" flag="0" class="layui-icon layui-icon-praise " style="font-size: 40px; color: #333333;"> </i>
+                    </a>
+                    <a href="javascript:shoucang()">
+                        <i id="shoucang" flag="0" class="layui-icon layui-icon-heart " style="font-size: 40px; color: #333333;"></i>
+                    </a>
+
+
+
+                </div>
+            </div>
+            <div class="layui-card" style="width: 700px;height: 150px;overflow: scroll">
+                <div class="layui-card-header">视频简介</div>
+                <div class="layui-card-body" style=" word-break:break-all;" th:text="${video.getVideodesc()}" >
+                </div>
+            </div>
+        </div>
+
+        <div style="float:left;display: inline-block;height: 800px;width:300px;margin-left:30px;">
+            <div style="height: 100px;width: 300px;margin-top: 20px">
+                <a  style="" class="item " th:href="'hisspace.do?accountid='+${owner.getAccountid()}">
+                    <img  style="width: 42px;height: 42px; border-radius: 50%;display: inline-block"  th:src="'resources/img/'+${owner.getAccountimg()}"/>
+                    <div class="right" th:text="${owner.getNickname()}"></div>
+                </a>
+                <a class="item" th:href="'chat_to.do?target='+${owner.getAccountid()}" style="text-align: center"><i class="layui-icon layui-icon-email " style="font-size: 30px; color: #1E9FFF;"></i><span>联系ta</span></a>
+                <p  th:text="'简介：'+${owner.getDesc()}"></p>
+                <button id="guanzhu" flag="0" onclick="guanzhu();" class="layui-btn layui-btn-normal right">尚未关注</button>
+            </div>
+            <div style="height: 430px;width: 300px;margin-top: 20px;overflow:scroll;table-layout: fixed">
+                <table id="demo" >
+                </table>
+
+            </div>
+            <div class="layui-input-block " style="margin-left: 0">
+                <textarea id="comment" placeholder="请输入内容" class="layui-textarea"></textarea>
+            </div>
+            <button id="comment_submit" onclick="submitcomment()" class="layui-btn layui-btn-lg layui-btn-normal right">发表评论</button>
+        </div>
+    </div>
+
+
+</div>
+<div style="display: none">
+
+    <div id="videoid" th:text="${video.getVideoid()}"></div>
+    <div id="be_accountid" th:text="${owner.getAccountid()}"></div>
+</div>
+</body>
+
+<script>
+    var $ = layui.jquery;
+</script>
+<script>
+    var videoid=$("#videoid").text();
+    var be_accountid=$("#be_accountid").text();
+</script>
+<script>
+
+    $("#login").mouseenter(function () {
+        $("#outlog").stop().slideDown(1000)
+    })
+    $("#login").mouseleave(function () {
+        $("#outlog").stop().slideUp(500)
+    })
+
+</script>
+
+<script>
+    var flow = layui.flow;
+    var lastcommentid=0;
+    var mytext;
+    var obj={
+        elem: '#demo' //指定列表容器
+        ,isAuto:true
+        ,done: function(page, next){ //到达临界点（默认滚动触发），触发下一页
+            console.log("评论列表")
+            mytext=next;
+            var lis = [];
+
+            $.get("query_comment.do?videoid="+videoid+"&lastcommentid="+lastcommentid,function (value) {
+                console.log(value)
+                for (var i = 0; i < value.length; i++) {
+                    lastcommentid=value[i].commentid
+                    var td='<tr><td bgcolor="#faebd7">用户：'+value[i].commentowner+'</td><td >'+value[i].commentdate+'</td></tr>\n' +
+                        '<tr><td height="10px"></td></tr>'+
+                        '                    <tr><td style="word-break: break-word;padding-left: 20px" colspan="2">'+value[i].commentcontent+'</td></tr>' +
+                        '<tr><td height="20px"></td></tr>';
+                    lis.push(td);
+                }
+                next(lis.join(''),value.length>29);
+            })
+
+
+
+
+        }
+    }
+    flow.load(obj);
+</script>
+
+<script>
+
+    function dianzan() {
+       const flag= $("#dianzan").attr("flag")
+        console.log(videoid)
+        if (flag == 0) {
+            $.get("dianzan.do?videoid="+videoid,function (value) {
+                console.log(value)
+                switch (value.code) {
+                    case 0:
+                        layer.msg("点赞成功")
+                        $("#dianzan").css("color","#dd6161")
+                        $("#dianzan").attr("flag","1")
+                        break;
+                    case 1:
+                        layer.msg("点赞失败，未知错误")
+                        break;
+                    case 2:
+                        layer.msg("您没有登录，不能点赞")
+                        break;
+                }
+            })
+        }
+        if (flag == 1) {
+            $.get("quxiao_dianzan.do?videoid="+videoid,function (value) {
+                console.log(value)
+                switch (value.code) {
+                    case 0:
+                        layer.msg("取消成功")
+                        $("#dianzan").css("color","#333333")
+                        $("#dianzan").attr("flag","0")
+                        break;
+                    case 1:
+                        layer.msg("取消失败，未知错误")
+                        break;
+                    case 2:
+                        layer.msg("没有登录，未知错误")
+                        break;
+                }
+            })
+        }
+    }
+    function shoucang() {
+        const flag= $("#shoucang").attr("flag")
+        if (flag == 0) {
+            $.get("shoucang.do?videoid="+videoid,function (value) {
+                switch (value.code) {
+                    case 0:
+                        layer.msg("收藏成功")
+                        $("#shoucang").css("color","#dd6161")
+                        $("#shoucang").attr("flag","1")
+                        break;
+                    case 1:
+                        layer.msg("收藏失败，未知错误")
+                        break;
+                    case 2:
+                        layer.msg("您没有登录，不能收藏")
+                        break;
+                }
+            })
+        }
+        if (flag == 1) {
+            $.get("quxiao_shoucang.do?videoid="+videoid,function (value) {
+                switch (value.code) {
+                    case 0:
+                        layer.msg("取消收藏")
+                        $("#shoucang").css("color","#333333")
+                        $("#shoucang").attr("flag","0")
+                        break;
+                    case 1:
+                        layer.msg("取消失败，未知错误")
+                        break;
+                    case 2:
+                        layer.msg("没有登录，未知错误")
+                        break;
+                }
+            })
+        }
+    }
+    function guanzhu() {
+        const flag= $("#guanzhu").attr("flag")
+        if (flag == 0) {
+            $.get("guanzhu.do?be_accountid="+be_accountid,function (value) {
+                switch (value.code) {
+                    case 0:
+                        layer.msg("关注成功")
+                        $("#guanzhu").removeClass("layui-btn-normal");
+                        $("#guanzhu").addClass("layui-btn-primary");
+                        $("#guanzhu").attr("flag","1");
+                        $("#guanzhu").text("已经关注");
+                        break;
+                    case 1:
+                        layer.msg("关注失败，未知错误")
+                        break;
+                    case 2:
+                        layer.msg("您没有登录，不能关注")
+                        break;
+                }
+            })
+        }
+        if (flag == 1) {
+            $.get("quxiao_guanzhu.do?be_accountid="+be_accountid,function (value) {
+                switch (value.code) {
+                    case 0:
+                        layer.msg("取消关注")
+                        $("#guanzhu").removeClass("layui-btn-primary");
+                        $("#guanzhu").addClass("layui-btn-normal");
+                        $("#guanzhu").attr("flag","0");
+                        $("#guanzhu").text("尚未关注");
+
+                        break;
+                    case 1:
+                        layer.msg("取消失败，未知错误")
+                        break;
+                    case 2:
+                        layer.msg("没有登录，未知错误")
+                        break;
+                }
+            })
+        }
+    }
+
+</script>
+<!--初始化按钮的状态，如已经关注，已经收藏，已经点赞-->
+<script>
+    $(function () {
+        console.log("初始化")
+        $.get("button_status.do?videoid="+videoid+"&be_accountid="+be_accountid,function (value) {
+            console.log(value)
+            if (value.dianzan == 1) {
+                $("#dianzan").css("color","#dd6161")
+                $("#dianzan").attr("flag","1")
+            }
+
+            if (value.guanzhu == 1) {
+                // #1E9FFF
+                $("#guanzhu").removeClass("layui-btn-normal")
+                $("#guanzhu").addClass("layui-btn-primary")
+                $("#guanzhu").text("已经关注")
+                $("#guanzhu").attr("flag","1")
+
+            }
+            if (value.shoucang == 1) {
+                $("#shoucang").css("color","#dd6161")
+                $("#shoucang").attr("flag","1")
+            }
+
+        })
+    })
+</script>
+<script>
+    function submitcomment(){
+        const  message=$("#comment").val()
+        $.post("comment.do",{
+            msg:message,
+            videoid:videoid
+        },function (value) {
+            switch (value.code) {
+                case 0:
+                    layer.msg("发表成功")
+                    $("#comment").val("")
+                    obj.done(0,mytext)
+                    break
+
+                case 1:
+                    layer.msg("位置错误")
+                    break
+                case 2:
+                    layer.msg("您未登录")
+                    break
+            }
+
+        })
+    }
+</script>
+</html>

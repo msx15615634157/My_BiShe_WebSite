@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="orz.doublexi.mapper.ChatMapper">
+  <select id="queryChatTargetList" resultType="orz.doublexi.pojo.Account">
+      select * from account where accountid in(SELECT target AS temp FROM chatmsg  WHERE accountid=#{accountid}  GROUP BY temp UNION ALL SELECT accountid AS temp FROM chatmsg  WHERE target=#{accountid}  GROUP BY temp)
+  </select>
+  <select id="queryChatMessageList" resultType="orz.doublexi.pojo.ChatMsg">
+     select * from ( select * from chatmsg where accountid in(#{accountid},#{target}) and target in(#{accountid},#{target})  order by msgtime desc limit 30) as a order by msgtime
+  </select>
+    <insert id="addChatMsg">
+        insert into chatmsg values (null,#{accountid},#{target},now(),#{msg})
+    </insert>
+</mapper>

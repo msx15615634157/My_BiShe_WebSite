@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="orz.doublexi.mapper.CommonMapper">
+    <select id="getcount" resultType="int">
+        select count(*) from test
+    </select>
+    <select id="getAccountByIdAndPassword" resultType="orz.doublexi.pojo.Account">
+        select * from account
+        <where>accountid=#{accountid} and accountpwd=#{accountpwd}</where>
+
+    </select>
+    <select id="getAccountByNicknameAndPassword" resultType="orz.doublexi.pojo.Account">
+        select * from account
+        <where>nickname=#{nickname} and accountpwd=#{accountpwd}</where>
+
+    </select>
+    <select id="getAccountById" resultType="orz.doublexi.pojo.Account">
+        select * from account
+        <where>accountid=#{accountid}</where>
+
+    </select>
+    <select id="getAccountByNickname" resultType="orz.doublexi.pojo.Account">
+        select * from account
+        <where>nickname=#{nickname}</where>
+
+    </select>
+    <insert id="regist" >
+        INSERT INTO account(accountpwd,nickname,accountimg) VALUES (#{accountpwd},#{nickname},'def.jpg')
+    </insert>
+    <update id="modifyAccountById">
+        update account set nickname=#{nickname},`desc`=#{desc} where accountid=#{accountid};
+    </update>
+    <update id="modifyAccountPassword">
+        update account set accountpwd=#{accountpwd} where accountid=#{accountid}
+    </update>
+</mapper>

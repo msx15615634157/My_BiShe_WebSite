@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="layui/layui.all.js"></script>
+    <script src="js/my.js"></script>
+    <link rel="stylesheet" href="css/my.css"/>
+    <link rel="stylesheet" href="layui/css/layui.css"/>
+</head>
+<body>
+<div class="banner">
+    <div style="height: 100%;margin: 0 10%">
+        <div style="width: 59%;display: inline-block;float: left">
+            <a class="menu-item left" href="/MyWebSite/index.do">主站</a>
+        </div>
+        <div  style="width: 39%;display: inline-block;float: left">
+            <div id="login" class="left">
+                <a  style="" class="menu-item "th:href="${session.account}?'myspace.do':'tologin.do?location=chat'">
+                    <img  style="width: 42px;height: 42px; border-radius: 50%;display: inline-block"  th:src="${session.account}?'resources/img/'+${session.account.getAccountimg()}:'resources/img/def.jpg'"/>
+                    <div style="display: inline-block" th:text="${session.account}?${session.account.getNickname()}:'未登录'"></div>
+                </a>
+                <br/>
+                <div id="outlog"  class="menu-item left" style="background-color:#fff; height:40px;position: fixed;margin-top: 0;display: none;z-index: 20000"><a th:href="${session.account}?'javascript:loginout();':'tologin.do?location=chat'" th:text="${session.account}?'退出登录':'登录账户'">退出登录</a></div>
+            </div>
+            <a class="menu-item left" href="tougao.do">投稿</a>
+        </div>
+    </div>
+</div>
+<div class="container" style="height: 800px;position: relative">
+    <!--模板-->
+    <div style="display: none;" >
+        <a id="target_template"  accountid=""  style="" class="list-item " >
+            <img  style="width: 60px;height: 60px; border-radius: 50%;display: inline-block"  src="resources/img/def.jpg"/>
+            <div style="display: inline-block;margin-left: 10px">meng</div>
+        </a>
+    </div>
+    <div id="target_list"  class="list-container" style="display: inline-block;float:left;height: 100%;width: 30%;">
+
+
+    </div>
+    <div style="display: inline-block;height: 800px;width: 60%;float: left;position: relative">
+
+        <div id="chattitle" style="position: relative;height: 50px;text-align: center;font-size: 33px" >
+            请选择对话者
+        </div>
+        <!--模板-->
+        <div style="display: none;" >
+            <div id="msgtemplate" class="huanhang" style="overflow: hidden" >
+                <div style="padding: 2px 2px;width: 300px;font-size: 22px;background-color:#8cc5ff;border-radius: 30%";>
+
+                </div>
+            </div>
+        </div>
+        <div id="chatframe" style="background-color:#cccccc;;overflow: scroll;padding:10px 20px;position: relative;height: 550px" >
+
+
+        </div>
+        <div style="position: relative;">
+                <textarea id="mymsg" placeholder="请输入内容" class="layui-textarea"></textarea>
+            <button onclick="send()" style="float: right;margin: 10px 5px 0 0" class="layui-btn layui-btn-normal">发送</button>
+        </div>
+    </div>
+</div>
+<div style="display: none;" th:text="${req}"></div>
+</body>
+
+<script>
+    var $ = layui.jquery;
+    var target;
+    var box=document.getElementById("chatframe")
+</script>
+<script>
+
+
+    $("#login").mouseleave(function () {
+        $("#outlog").stop().slideUp(500)
+    })
+    $("#login").mouseenter(function () {
+        $("#outlog").stop().slideDown(500)
+    })
+</script>
+<script>
+    // 初始化私信目标列表
+    $(function () {
+        $.get("[[${req}]]",function (res) {
+            let accounts=res.accounts
+            for (let i = 0; i < accounts.length; i++) {
+                console.log(accounts[i])
+                addtarget(accounts[i])
+            }
+            $("#target_list .list-item")[0].click()
+        })
+
+    })
+    function msg( msg, direction){
+        let clone = $("#msgtemplate").clone(true);
+        clone.removeAttr("id","")
+
+        let child = clone[0].getElementsByTagName("div")[0];
+        child.style.float=direction
+        child.innerText=msg
+        clone.appendTo("#chatframe")
+    }
+    function addtarget( account){
+        let clone = $("#target_template").clone(true);
+        clone.removeAttr("id","")
+        clone.attr("accountid",account.accountid)
+        let img = clone[0].getElementsByTagName("img")[0];
+        img.setAttribute("src","resources/img/"+account.accountimg)
+        let div = clone[0].getElementsByTagName("div")[0];
+        div.innerText=account.nickname
+        clone.appendTo("#target_list")
+    }
+    function send() {
+        if (target == null) {
+            layer.msg("请选择对话者")
+            return
+        }
+        $.post("addmsg.do?target="+target,{msg:$("#mymsg").val()},function (res) {
+            if (res.code == 1) {
+                layer.msg("发送失败")
+                return
+            }
+            msg($("#mymsg").val(),"right");
+            $("#mymsg").val("")
+            box.scrollTop=box.scrollHeight;
+        })
+
+    }
+
+</script>
+<script>
+
+
+    $(".list-item").on("click",function () {
+        $(".list-item").removeClass("list-item-active")
+        $(this).addClass("list-item-active")
+        target=$(this).attr("accountid")
+        let temp=$(this).attr("accountid")
+        console.log("target更改"+target)
+       let div= $(this)[0].getElementsByTagName("div")[0];
+        $("#chattitle").text("正在与"+div.innerText+"对话")
+        $("#chatframe").html("")
+        console.log("clean")
+        $.get("querymsg.do?target="+target,function (res) {
+            let result = res.msgs;
+            for (let i = 0; i < result.length; i++) {
+                if (result[i].target == target) {
+                    msg(result[i].msg,"right")
+                }else{
+                    msg(result[i].msg,"left")
+                }
+            }
+        })
+
+
+      let t=  setInterval(function () {
+            $.get("update.do?target="+target,function (res) {
+                console.log("正在更新聊天数据，5秒同步一次"+temp)
+                for (let i = 0; i < res.length; i++) {
+                    msg(res[i],"left")
+                    box.scrollTop=box.scrollHeight;
+                }
+            })
+          if (target != temp) {
+              clearInterval(t)
+              console.log("关闭了"+t+"号")
+          }
+        },5000)
+
+    })
+</script>
+
+</html>

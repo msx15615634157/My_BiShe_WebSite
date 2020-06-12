@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="orz.doublexi.mapper.FileUploadMapper">
+    <insert id="insertUploadInfoBean" parameterType="orz.doublexi.pojo.UploadInfoBean">
+        insert into video value(null,#{title},#{imagename},#{videoname},#{owner},#{desc},now())
+    </insert>
+    <update id="updateAccontImgByAcccountid">
+        update account set accountimg=#{imgname} where accountid=#{accountid}
+    </update>
+</mapper>

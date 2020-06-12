@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/my.css"/>
+    <link rel="stylesheet" href="layui/css/layui.css"/>
+
+    <script src="js/my.js"></script>
+<style>
+    .layui-table-cell{
+        height:36px;
+        line-height: 36px;
+    }
+</style>
+</head>
+<body>
+
+<div class="layui-container" style="background-image: url(img/bg1.png);background-repeat: no-repeat;width: 1600px;height: 290px">
+<div class="layui-row" >
+    <div class="layui-col-xs8 layui-col-md8">
+        <a class="menu-item left" style="margin-left: 300px" href="/MyWebSite/index.do">主站</a>
+    </div>
+    <div class="layui-col-xs4 layui-col-md4">
+        <div id="login" class="left">
+            <a  style="" class="menu-item "th:href="${session.account}?'myspace.do':'tologin.do?location=myspace'">
+                <img  style="width: 42px;height:42px; border-radius: 50%;display: inline-block"  th:src="${session.account}?'resources/img/'+${session.account.getAccountimg()}:'resources/img/def.jpg'"/>
+                <div id="n1" style="display: inline-block" th:text="${session.account}?${session.account.getNickname()}:'未登录'"></div>
+            </a>
+            <br/>
+            <div id="outlog"  class="menu-item left" style="color: red; height:40px;position: fixed;margin-top: 0px;display: none;z-index: 1999"><a th:href="${session.account}?'javascript:loginout();':'tologin.do?location=myspace'" th:text="${session.account}?'退出登录':'登录账户'">退出登录</a></div>
+        </div>
+        <a class="menu-item left" href="tougao.do">投稿</a>
+    </div>
+    <div class="layui-col-xs12 layui-col-md12" style="height: 240px;">
+       <div style="height: 70px;position:absolute;left: 0;bottom: 0;">
+           <img id="touxiang" class="left" style="height: 64px;width:64px;border-radius: 50%;display: inline-block" th:src="'resources/img/'+${his.getAccountimg()}">
+           <div class="left" style="display: inline-block;height: 64px">
+               <div id="n2" style="height: 32px" th:text="${his.getNickname()}"></div>
+               <div id="d2" style="height: 32px" th:text="${his.getDesc()}">t</div>
+           </div>
+           <div class="left" style="margin-left: 20px;display: inline-block;height: 64px;">
+               <button id="guanzhu" flag="0" onclick="guanzhu();" class="layui-btn layui-btn-normal right">尚未关注</button>
+           </div>
+
+       </div>
+    </div>
+</div>
+</div>
+<div class="layui-container " style="width: 1600px;height: 500px;background-color:#cccccc;">
+    <div class="layui-card layui-col-xs12 layui-col-md12">
+        <div class="layui-card-header">Ta的稿件</div>
+        <div class="layui-card-body">
+            <table class="layui-table" th:attr="lay-data='{height:615,url:\'/MyWebSite/his_upload_videos.do?accountid='+${his.getAccountid()}+'\',page:true}'" lay-filter="uploadvideo">
+                <thead>
+                <tr>
+                    <th lay-data="{field:'videoid', cellMinWidth:200, sort: true}">视频ID</th>
+                    <th lay-data="{field:'videotitle', cellMinWidth:300}">标题</th>
+                    <th lay-data="{field:'videodate', cellMinWidth:300, sort: true}">日期</th>
+                    <th lay-data="{cellMinWidth:300,templet:'#videopage'}">前往播放页面</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+</div>
+</body>
+<div style="display: none">
+
+    <div id="be_accountid" th:text="${his.getAccountid()}"></div>
+</div>
+<script src="layui/layui.all.js"></script>
+<script>
+    var $=layui.jquery
+    var element = layui.element;
+    var table = layui.table;
+    var upload = layui.upload;
+    var form = layui.form;
+</script>
+<script>
+    var be_accountid=$("#be_accountid").text();
+</script>
+<script>
+
+    $("#login").mouseenter(function () {
+        $("#outlog").stop().slideDown(1000)
+    })
+    $("#login").mouseleave(function () {
+        $("#outlog").stop().slideUp(500)
+    })
+
+</script>
+<script>
+    $(function () {
+        console.log("初始化")
+        $.get("guanzhu_status.do?&be_accountid="+be_accountid,function (value) {
+            console.log(value)
+
+            if (value.guanzhu == 1) {
+                // #1E9FFF
+                $("#guanzhu").removeClass("layui-btn-normal")
+                $("#guanzhu").addClass("layui-btn-primary")
+                $("#guanzhu").text("已经关注")
+                $("#guanzhu").attr("flag","1")
+
+            }
+
+        })
+    })
+    function guanzhu() {
+        const flag= $("#guanzhu").attr("flag")
+        if (flag == 0) {
+            $.get("guanzhu.do?be_accountid="+be_accountid,function (value) {
+                switch (value.code) {
+                    case 0:
+                        layer.msg("关注成功")
+                        $("#guanzhu").removeClass("layui-btn-normal");
+                        $("#guanzhu").addClass("layui-btn-primary");
+                        $("#guanzhu").attr("flag","1");
+                        $("#guanzhu").text("已经关注");
+                        break;
+                    case 1:
+                        layer.msg("关注失败，未知错误")
+                        break;
+                    case 2:
+                        layer.msg("您没有登录，不能关注")
+                        break;
+                }
+            })
+        }
+        if (flag == 1) {
+            $.get("quxiao_guanzhu.do?be_accountid="+be_accountid,function (value) {
+                switch (value.code) {
+                    case 0:
+                        layer.msg("取消关注")
+                        $("#guanzhu").removeClass("layui-btn-primary");
+                        $("#guanzhu").addClass("layui-btn-normal");
+                        $("#guanzhu").attr("flag","0");
+                        $("#guanzhu").text("尚未关注");
+
+                        break;
+                    case 1:
+                        layer.msg("取消失败，未知错误")
+                        break;
+                    case 2:
+                        layer.msg("没有登录，未知错误")
+                        break;
+                }
+            })
+        }
+    }
+</script>
+<script type="text/html" id="videopage">
+    <a target="_blank" href="video.do?videoid={{d.videoid}}" class="layui-table-link">前往播放页面</a>
+</script>
+</html>
